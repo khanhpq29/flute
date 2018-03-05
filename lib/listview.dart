@@ -73,7 +73,6 @@ class ListItemState extends State<ListItem> {
   Widget build(BuildContext context) {
     return new Container(
       padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 16.0),
-      child: new Text(item.title),
     );
   }
 }

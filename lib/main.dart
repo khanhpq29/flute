@@ -17,91 +17,111 @@ class DemoLab extends StatelessWidget {
 
 class LoginPage extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => new FormFlutter();
+  State<StatefulWidget> createState() => new AddListState();
 }
 
-class FormFlutter extends State<LoginPage> {
-  final GlobalKey<FormState> _keyForm = new GlobalKey<FormState>();
-  LoginData loginData = new LoginData();
+class AddListState extends State<LoginPage> {
+  final TextEditingController editingController = new TextEditingController();
+
+  List<ListItem> listItem = <ListItem>[];
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    final size = MediaQuery
-        .of(context)
-        .size;
-    return new Scaffold(
-      appBar: new AppBar(
-        title: new Text("Login"),
-      ),
-      body: new Container(
-        padding: const EdgeInsets.all(16.0),
-        child: new Form(
-            key: _keyForm,
-            child: new ListView(
-              children: <Widget>[
-                new TextFormField(
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: new InputDecoration(
-                      hintText: "email@example.com",
-                      labelText: "Email"),
-                  validator: _invalidateEmail,
-                  onSaved: (String value){
-                    loginData.email = value;
-                  },
+    return new MaterialApp(
+      theme: new ThemeData(primarySwatch: Colors.red),
+      home: new Scaffold(
+        appBar: new AppBar(
+          title: new Text("List"),
+        ),
+        body: new Container(
+          margin: const EdgeInsets.all(16.0),
+          child: new Column(
+            children: <Widget>[
+              new Flexible(child: new ListView.builder(
+                itemBuilder: (_, int index) => listItem[index],
+                reverse: false,
+                itemCount: listItem.length,
+              )),
+              new Divider(
+                height: 1.0,
+                color: Colors.red,
+              ),
+              new Container(
+                decoration: new BoxDecoration(
+                  color: Theme
+                      .of(context)
+                      .cardColor,
                 ),
-                new TextFormField(
-                  obscureText: true,
-                  decoration: new InputDecoration(
-                      hintText: "Password", labelText: "Password"),
-                  validator: _validatePassword,
-                  onSaved: (String value){
-                    loginData.password = value;
-                  },
-                ),
-                new Container(
-                  margin: const EdgeInsets.only(top: 20.0),
-                  width: size.width,
-                  child: new RaisedButton(
-                    onPressed: () => this.submit(),
-                    child: new Text(
-                      "Login", style: new TextStyle(color: Colors.white),),
-                    color: Colors.blue,
-                  ),
-                )
-              ],
-            )
+                child: createBottomBoxWidget(),
+              )
+            ],
+          ),
         ),
       ),
     );
   }
 
-  String _invalidateEmail(String value) {
-    try{
-      Validate.isEmail(value);
-    }catch(e){
-      return "Email is invalidate";
-    }
-    return null;
+  Widget createBottomBoxWidget() {
+    return new Container(
+      child: new Row(
+        children: <Widget>[
+          new Flexible(
+              child: new TextField(
+                decoration: new InputDecoration(
+                  hintText: "Add something"
+                ),
+                controller: editingController,
+              )),
+          new Container(
+            child: new IconButton(icon: new Icon(Icons.list),
+                color: Colors.red, onPressed: () => handleList()
+            ),
+          ),
+          new Container(
+            child: new IconButton(icon: new Icon(Icons.send),
+                color: Colors.red, onPressed: () { handleSend(editingController.text); }
+            ),
+          )
+        ],
+      ),
+    );
   }
 
-  String _validatePassword(String pass){
-    if(pass.length < 6){
-      return "Password must be at least 6 characters";
-    }
-    return null;
+  void handleList() {
+
   }
 
-  void submit(){
-    if(this._keyForm.currentState.validate()){
-      this._keyForm.currentState.save();
-      print("User account was saved");
-      print("Email: ${loginData.email}");
-      print("Password: ${loginData.password}");
+  void handleSend(String value) {
+    editingController.clear();
+    if(!value.trim().isEmpty) {
+      ListItem item = new ListItem(content: value.trim(),);
+      setState(() {
+        listItem.insert(0, item);
+      });
     }
   }
 }
 
-class LoginData {
-  String email;
-  String password;
+class ListItem extends StatelessWidget {
+  final String content;
+  ListItem({this.content});
+
+  @override
+  Widget build(BuildContext context) {
+    return new Container(
+      margin: const EdgeInsets.symmetric(vertical: 10.0),
+      child: new Row(
+        children: <Widget>[
+          new CircleAvatar(
+            backgroundColor: Colors.blue,
+            child: new Text(content[0].toUpperCase()),
+          ),
+          new Container(
+            margin: const EdgeInsets.only(left: 16.0),
+            child: new Text(content),
+          ),
+        ],
+      ),
+    );
+  }
 }
+
