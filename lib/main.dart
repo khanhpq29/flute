@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dart:collection';
-import 'package:validate/validate.dart';
+import 'dart:convert';
 
 void main() => runApp(new DemoLab());
 
@@ -10,6 +9,7 @@ class DemoLab extends StatelessWidget {
     // TODO: implement build
     return new MaterialApp(
       title: "Chat",
+      debugShowCheckedModeBanner: false,
       home: new LoginPage(),
     );
   }
@@ -20,108 +20,47 @@ class LoginPage extends StatefulWidget {
   State<StatefulWidget> createState() => new AddListState();
 }
 
-class AddListState extends State<LoginPage> {
-  final TextEditingController editingController = new TextEditingController();
-
-  List<ListItem> listItem = <ListItem>[];
-  @override
-  Widget build(BuildContext context) {
-    return new MaterialApp(
-      theme: new ThemeData(primarySwatch: Colors.red),
-      home: new Scaffold(
-        appBar: new AppBar(
-          title: new Text("List"),
-        ),
-        body: new Container(
-          margin: const EdgeInsets.all(16.0),
-          child: new Column(
-            children: <Widget>[
-              new Flexible(child: new ListView.builder(
-                itemBuilder: (_, int index) => listItem[index],
-                reverse: false,
-                itemCount: listItem.length,
-              )),
-              new Divider(
-                height: 1.0,
-                color: Colors.red,
-              ),
-              new Container(
-                decoration: new BoxDecoration(
-                  color: Theme
-                      .of(context)
-                      .cardColor,
-                ),
-                child: createBottomBoxWidget(),
-              )
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget createBottomBoxWidget() {
-    return new Container(
-      child: new Row(
-        children: <Widget>[
-          new Flexible(
-              child: new TextField(
-                decoration: new InputDecoration(
-                  hintText: "Add something"
-                ),
-                controller: editingController,
-              )),
-          new Container(
-            child: new IconButton(icon: new Icon(Icons.list),
-                color: Colors.red, onPressed: () => handleList()
-            ),
-          ),
-          new Container(
-            child: new IconButton(icon: new Icon(Icons.send),
-                color: Colors.red, onPressed: () { handleSend(editingController.text); }
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
-  void handleList() {
-
-  }
-
-  void handleSend(String value) {
-    editingController.clear();
-    if(!value.trim().isEmpty) {
-      ListItem item = new ListItem(content: value.trim(),);
-      setState(() {
-        listItem.insert(0, item);
-      });
-    }
-  }
-}
-
-class ListItem extends StatelessWidget {
-  final String content;
-  ListItem({this.content});
+class AddListState extends State<LoginPage>
+    with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return new Container(
-      margin: const EdgeInsets.symmetric(vertical: 10.0),
-      child: new Row(
-        children: <Widget>[
-          new CircleAvatar(
-            backgroundColor: Colors.blue,
-            child: new Text(content[0].toUpperCase()),
+    return new Scaffold(
+      appBar: new AppBar(
+        title: new Text("Bottom navigation"),
+        backgroundColor: Colors.blue,
+      ),
+      body: new Container(
+        child: new Center(
+          child: new FutureBuilder(
+            future: DefaultAssetBundle.of(context).loadString(
+                "datareport/data.json"), builder: (context, async) {
+            var newData = JSON.decode(async.data.toString());
+            return new ListView.builder(
+              itemBuilder: (BuildContext context, int index) {
+                return new Card(
+                  child: new Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      new Text(newData[index]['name']),
+                      new Text(newData[index]["height"]),
+                      new Text(newData[index]["mass"]),
+                      new Text(newData[index]["hair_color"]),
+                      new Text(newData[index]["skin_color"]),
+                      new Text(newData[index]["eye_color"]),
+                      new Text(newData[index]["birth_year"]),
+                      new Text(newData[index]["gender"])
+                    ],
+                  ),
+                );
+              },
+              itemCount: newData == null ? 0 : newData.length,
+              reverse: false,
+            );
+          },
           ),
-          new Container(
-            margin: const EdgeInsets.only(left: 16.0),
-            child: new Text(content),
-          ),
-        ],
+        ),
       ),
     );
   }
 }
-
